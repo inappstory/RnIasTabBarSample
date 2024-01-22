@@ -10,8 +10,8 @@ import { Text, View } from "react-native";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RNWelcomeScreen } from "./Screens/RNWelocmeScreen";
-import { useIas, StoryReader } from "react-native-ias";
-import { createAppearanceManager, createStoryManager } from "./services/StoriesConfig";
+import { StoryReader } from "react-native-ias";
+import { appearanceManager, storyManager } from "./services/StoryService";
 
 // function App(): JSX.Element {
 //     return <NavigationContainer />;
@@ -26,7 +26,6 @@ import { createAppearanceManager, createStoryManager } from "./services/StoriesC
 // }
 
 function SettingsScreen() {
-    const { storyManager, appearanceManager } = useIas(createStoryManager, createAppearanceManager);
     useFocusEffect(() => {
         setTimeout(() => storyManager.showStory(16932, appearanceManager), 1000);
     });
@@ -50,7 +49,9 @@ export default function App() {
                 <Tab.Screen name="Home" component={RNWelcomeScreen} />
                 <Tab.Screen name="Settings" component={SettingsScreen} />
             </Tab.Navigator>
-            <StoryReader storyManager={useIas(createStoryManager, createAppearanceManager).storyManager} />
+            <StoryReader storyManager={storyManager} />
         </NavigationContainer>
     );
 }
+
+// version migrate

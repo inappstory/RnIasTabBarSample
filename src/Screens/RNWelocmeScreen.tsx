@@ -9,7 +9,7 @@ type SectionProps = PropsWithChildren<{
     title: string;
 }>;
 
-function Section({ children, title }: SectionProps): JSX.Element {
+function Section({ children, title }: SectionProps): React.JSX.Element {
     const isDarkMode = useColorScheme() === "dark";
     return (
         <View style={styles.sectionContainer}>
@@ -35,7 +35,7 @@ function Section({ children, title }: SectionProps): JSX.Element {
     );
 }
 
-export function RNWelcomeScreen(): JSX.Element {
+export function RNWelcomeScreen(): React.JSX.Element {
     const isDarkMode = useColorScheme() === "dark";
 
     const backgroundStyle = {

@@ -1,7 +1,7 @@
 import { StyleSheet, useColorScheme, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
-import { StoriesList, useIas, AppearanceManager, StoryManager, ListLoadStatus, Option } from "react-native-ias";
+import { StoriesList, ListLoadStatus, Option } from "react-native-ias";
 
 import ContentLoader, { Rect } from "react-content-loader/native";
 
@@ -10,7 +10,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming, Easing } from "
 
 import StoriesListViewModel from "react-native-ias/types/StoriesListViewModel";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-import { createAppearanceManager, createStoryManager } from "../services/StoriesConfig";
+import { appearanceManager, storyManager } from "../services/StoryService";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -24,13 +24,11 @@ type StoryListComponentProps = {
     backgroundColor: string;
 };
 export const StoryListComponent = ({ feedId, backgroundColor }: StoryListComponentProps): JSX.Element => {
-    const { storyManager, appearanceManager } = useIas(createStoryManager, createAppearanceManager);
-
     feedId = feedId || "default";
 
     const [loadStatus, setLoadStatus] = useState<LoadStatus>(LoadStatus.loading);
 
-    const loadStartAtRef = useRef<number>(null);
+    const loadStartAtRef = useRef<number | null>(null);
 
     const onLoadStart = () => {
         loadStartAtRef.current = new Date().getTime();
@@ -44,7 +42,7 @@ export const StoryListComponent = ({ feedId, backgroundColor }: StoryListCompone
     const onLoadEnd = (listLoadStatus: ListLoadStatus) => {
         const minTime = 600;
         const now = new Date().getTime();
-        const diff = Math.max(0, minTime - (now - loadStartAtRef.current));
+        const diff = Math.max(0, minTime - (now - (loadStartAtRef.current ?? now)));
 
         setTimeout(() => {
             if (listLoadStatus.defaultListLength > 0 || listLoadStatus.favoriteListLength > 0) {
@@ -69,20 +67,18 @@ export const StoryListComponent = ({ feedId, backgroundColor }: StoryListCompone
 
     const storiesListViewModel = useRef<StoriesListViewModel>();
 
-    if (storyManager == null || appearanceManager == null) {
-        return <></>;
-    }
-
-    appearanceManager.setStoriesListOptions({
-        layout: {
-            backgroundColor,
-        },
-        card: {
-            title: {
-                color: isDarkMode ? Colors.lighter : Colors.darker,
+    useEffect(() => {
+        appearanceManager.setStoriesListOptions({
+            layout: {
+                backgroundColor,
             },
-        },
-    });
+            card: {
+                title: {
+                    color: isDarkMode ? Colors.lighter : Colors.darker,
+                },
+            },
+        });
+    }, [backgroundColor, isDarkMode]);
 
     const viewModelExporterInner = (viewModel: StoriesListViewModel) => {
         storiesListViewModel.current = viewModel;
@@ -94,8 +90,6 @@ export const StoryListComponent = ({ feedId, backgroundColor }: StoryListCompone
     return (
         <View style={[styles.storyListContainer, { height: containerHeight }, loadStatus === LoadStatus.fail ? { display: "none" } : null]}>
             <AnimatedStoryList
-                storyManager={storyManager}
-                appearanceManager={appearanceManager}
                 loadStatus={loadStatus}
                 feedId={feedId}
                 onLoadStart={onLoadStart}
@@ -149,8 +143,6 @@ const StoryListLoader = ({ loadStatus }: { loadStatus: LoadStatus }) => {
         opacity.value = loadStatus === LoadStatus.success ? 0 : 1;
     }, [loadStatus, opacity]);
 
-    const { appearanceManager } = useIas(createStoryManager, createAppearanceManager);
-
     const height = appearanceManager.storiesListOptions.card?.height ?? 0;
     const cardWidth = height;
     const paddingVertical = appearanceManager.storiesListOptions.topPadding;
@@ -178,16 +170,12 @@ const StoryListLoader = ({ loadStatus }: { loadStatus: LoadStatus }) => {
 
 const AnimatedStoryList = ({
     loadStatus,
-    storyManager,
-    appearanceManager,
     feedId,
     onLoadStart,
     onLoadEnd,
     viewModelExporter,
 }: {
     loadStatus: LoadStatus;
-    storyManager: StoryManager;
-    appearanceManager: AppearanceManager;
     feedId: string;
     onLoadStart: () => void;
     onLoadEnd: (listLoadStatus: ListLoadStatus) => void;
