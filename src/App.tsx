@@ -6,12 +6,13 @@
  */
 
 import * as React from "react";
-import { Text, View } from "react-native";
-import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RNWelcomeScreen } from "./Screens/RNWelocmeScreen";
 import { StoryReader } from "react-native-ias";
-import { appearanceManager, storyManager } from "./services/StoryService";
+import { storyManager } from "./services/StoryService";
+import { MoreScreen } from "./Screens/MoreScreen.tsx";
+import { navigationRef } from "./RootNavigation.ts";
 
 // function App(): JSX.Element {
 //     return <NavigationContainer />;
@@ -25,29 +26,19 @@ import { appearanceManager, storyManager } from "./services/StoryService";
 //     );
 // }
 
-function SettingsScreen() {
-    useFocusEffect(() => {
-        setTimeout(() => storyManager.showStory(16932, appearanceManager), 1000);
-    });
-    return (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <Text>Settings!</Text>
-        </View>
-    );
-}
-
 const Tab = createBottomTabNavigator();
 
 export default function App() {
     return (
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
             <Tab.Navigator
                 screenOptions={({ route }) => ({
                     tabBarActiveTintColor: "tomato",
                     tabBarInactiveTintColor: "gray",
+                    headerShown: false,
                 })}>
                 <Tab.Screen name="Home" component={RNWelcomeScreen} />
-                <Tab.Screen name="Settings" component={SettingsScreen} />
+                <Tab.Screen name="More" component={MoreScreen} />
             </Tab.Navigator>
             <StoryReader storyManager={storyManager} />
         </NavigationContainer>

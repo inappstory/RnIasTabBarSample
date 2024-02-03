@@ -1,14 +1,9 @@
 import { StyleSheet, useColorScheme, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-
-import { StoriesList, ListLoadStatus, Option } from "react-native-ias";
-
+import { StoriesList, ListLoadStatus, type StoriesListViewModel } from "react-native-ias";
 import ContentLoader, { Rect } from "react-content-loader/native";
-
 import { Dimensions } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, Easing } from "react-native-reanimated";
-
-import StoriesListViewModel from "react-native-ias/types/StoriesListViewModel";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { appearanceManager, storyManager } from "../services/StoryService";
 
@@ -20,10 +15,10 @@ enum LoadStatus {
     fail = "LoadFail",
 }
 type StoryListComponentProps = {
-    feedId: Option<string>;
+    feedId: string | null;
     backgroundColor: string;
 };
-export const StoryListComponent = ({ feedId, backgroundColor }: StoryListComponentProps): JSX.Element => {
+export const StoryListComponent = ({ feedId, backgroundColor }: StoryListComponentProps): React.JSX.Element => {
     feedId = feedId || "default";
 
     const [loadStatus, setLoadStatus] = useState<LoadStatus>(LoadStatus.loading);

@@ -9,12 +9,12 @@ import {
     StoryManagerConfig,
 } from "react-native-ias";
 
-import { Linking } from "react-native";
+import { RootNavigation } from "../RootNavigation.ts";
 
 const storyManagerConfig: StoryManagerConfig = {
     apiKey: "test-key",
     userId: null,
-    tags: [],
+    tags: ["carrefour-italia-test"],
     placeholders: {
         user: "Guest",
     },
@@ -38,10 +38,16 @@ const createStoryManager = () => {
     storyManager.on("shareStoryWithPath", payload => console.log("shareStoryWithPath", { payload }));
 
     // btn handler
-    storyManager.storyLinkClickHandler = (payload: any) => {
+    storyManager.storyLinkClickHandler = async (payload: any) => {
         console.log({ payload });
+
         if (payload.data.url != null) {
-            Linking.openURL(payload.data.url);
+            // Linking.openURL(payload.data.url);
+            await storyManager.closeStoryReader();
+            RootNavigation.navigate("More", {
+                screen: "ExternalLink",
+                params: { url: payload.data.url },
+            });
         }
     };
 
